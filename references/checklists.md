@@ -23,10 +23,11 @@ project/
 {
   "project": "avatar-video-demo",
   "created_at": "YYYY-MM-DD",
-  "minimax": {
-    "source_file_id": "redacted",
-    "voice_id": "brand_person_yyyymmdd",
-    "tts_model": "speech-2.8-hd",
+  "netmind": {
+    "provider": "netmind",
+    "endpoint": "https://api.netmind.ai/v1/generation",
+    "tts_model": "minimax/speech-02-hd",
+    "voice_id": "Wise_Woman",
     "full_audio": "work/voiceover-full.mp3",
     "preview_audio": "work/preview-15s.mp3"
   },
@@ -69,14 +70,15 @@ Use $avatar-video-skill to make only a 15-second preview.
 Inputs:
 - Script: inputs/script.md
 - Portrait: inputs/portrait.jpg
-- Voice sample: inputs/voice-source.mp3
-- MiniMax key: MINIMAX_API_KEY
+- Voice sample / voice_id: inputs/voice-source.mp3 or a known NetMind voice_id
+- NetMind key: NETMIND_API_KEY
 - HeyGen key: HEYGEN_API_KEY
 
 Requirements:
 - Validate assets before API calls.
+- Generate narration via NetMind POST https://api.netmind.ai/v1/generation with model minimax/speech-02-hd.
 - Generate work/preview-15s.mp3 and outputs/preview-15s.mp4.
-- Record IDs and status in work/job-state.json.
+- Record IDs and status in work/job-state.json under netmind + heygen.
 - Stop after preview and wait for my approval.
 - Do not reveal full keys or signed URLs.
 ```
@@ -90,7 +92,7 @@ The preview is approved. Generate the full 1080p version.
 
 Requirements:
 - Reuse existing voice_id and asset_id values when possible.
-- Do not reclone the voice unless required.
+- Do not change NetMind voice_id unless required.
 - Download to outputs/final-1080p.mp4.
 - Decode-check the full MP4.
 - Update work/job-state.json.
@@ -104,7 +106,7 @@ Use $avatar-video-skill for batch preview production.
 Inputs:
 - Scripts: inputs/scripts/*.md
 - Portrait: inputs/portrait.jpg
-- Voice sample: inputs/voice-source.mp3
+- Voice sample / voice_id: inputs/voice-source.mp3 or a known NetMind voice_id
 
 Requirements:
 - Create one independent state record per script.
