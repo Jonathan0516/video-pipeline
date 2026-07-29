@@ -1,0 +1,7 @@
+interface:
+  display_name: "Avatar Video Skill"
+  short_description: "MiniMax + HeyGen 数字人制作流程与质检"
+  default_prompt: "Use $avatar-video-skill to create a 15-second preview first, then wait for approval before generating the full avatar video."
+
+policy:
+  allow_implicit_invocation: false

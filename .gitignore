@@ -1,0 +1,17 @@
+.env
+.env.*
+work/
+outputs/
+inputs/
+*.mp3
+*.wav
+*.m4a
+*.mp4
+*.mov
+*.jpg
+*.jpeg
+*.png
+*.webp
+job-state.json
+*.log
+.DS_Store
