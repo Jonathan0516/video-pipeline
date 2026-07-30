@@ -1,0 +1,7 @@
+interface:
+  display_name: "Project → Video Source"
+  short_description: "读任意前端项目 → 生成 video-source Manifest（录制/组件）"
+  default_prompt: "Use $project-to-video-source to detect the frontend framework, draft scenes from routes, capture them with Playwright, and emit video-source.json for remotion-video."
+
+policy:
+  allow_implicit_invocation: false

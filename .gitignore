@@ -15,3 +15,10 @@ inputs/
 job-state.json
 *.log
 .DS_Store
+
+# tooling
+__pycache__/
+.pytest_cache/
+node_modules/
+video-work/
+video-out/

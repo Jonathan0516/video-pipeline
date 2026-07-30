@@ -1,0 +1,7 @@
+interface:
+  display_name: "Remotion Video"
+  short_description: "Manifest → Remotion 视频（数字人左下角 PiP + NetMind 配音）"
+  default_prompt: "Use $remotion-video to scaffold a Remotion project from a video-source.json Manifest, overlay a HeyGen digital-human PiP bottom-left, align scenes to NetMind narration, render a 15-second preview first, then the full video after approval."
+
+policy:
+  allow_implicit_invocation: false
