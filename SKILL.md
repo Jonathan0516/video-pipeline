@@ -1,6 +1,6 @@
 ---
 name: avatar-video-skill
-description: Public-safe NetMind speech (MiniMax model via NetMind) and HeyGen API workflow for creating avatar talking-head videos. Use when Codex is asked to make, automate, QA, or batch-produce authorized 数字人/口播 videos from a script, portrait, voice sample, NetMind TTS, HeyGen Image-to-Video, HeyGen Photo Avatar, a 15-second preview, full-video generation, or job-state tracking.
+description: Public-safe NetMind speech (MiniMax model via NetMind) and HeyGen API workflow for creating avatar talking-head videos. Use when asked to make, automate, QA, or batch-produce authorized 数字人/口播 (digital human / talking-head) videos from a script and portrait — covers NetMind TTS narration, HeyGen Image-to-Video, HeyGen Photo Avatar, voice sample cloning, a 15-second preview, full-video generation, and job-state tracking.
 ---
 
 # Avatar Video Skill
