@@ -2,67 +2,98 @@
 
 Last reviewed: 2026-07-30
 
-Use this file as a compact factual baseline. If a task depends on exact request fields, pricing, model availability, or provider limits, verify against official NetMind and HeyGen documentation before coding or running paid requests.
+Use this file as a compact factual baseline. Verify exact request fields, model availability, regional endpoints, limits, and pricing against official provider documentation before production or paid calls.
 
-## NetMind Speech (MiniMax model via NetMind)
+## MiniMax Official Speech API
 
-Provider: **NetMind** (not direct MiniMax platform).
+Use MiniMax directly, not a NetMind proxy.
 
-Auth and endpoint:
+Official documentation:
 
-- Environment variable: `NETMIND_API_KEY`
-- Base generation URL: `https://api.netmind.ai/v1/generation`
-- Header: `Authorization: Bearer ${NETMIND_API_KEY}`
-- Header: `Content-Type: application/json`
+- Synchronous TTS: https://platform.minimaxi.com/docs/api-reference/speech-t2a-http
+- File upload: https://platform.minimaxi.com/docs/api-reference/file-management-upload
+- Voice cloning: https://platform.minimaxi.com/docs/api-reference/voice-cloning-clone
+- Voice list: https://platform.minimaxi.com/docs/api-reference/voice-management-get
 
-Default TTS model on NetMind:
+### Authentication and endpoints
 
-- `minimax/speech-02-hd`
+- API key environment variable: `MINIMAX_API_KEY`
+- Optional base URL environment variable: `MINIMAX_API_BASE_URL`
+- Default official base URL: `https://api.minimaxi.com`
+- Synchronous TTS: `POST /v1/t2a_v2`
+- File upload: `POST /v1/files/upload`
+- Voice cloning: `POST /v1/voice_clone`
+- Header: `Authorization: Bearer ${MINIMAX_API_KEY}`
+- JSON requests use `Content-Type: application/json`; file uploads use multipart form data.
 
-Example request shape (from NetMind generation API):
+Use the endpoint region associated with the user's MiniMax account and API key. Do not silently send a key to a different region or third-party proxy.
 
-```bash
-export API_KEY="<YOUR API Key>"
-curl -X POST 'https://api.netmind.ai/v1/generation' \
-  --header "Authorization: Bearer ${API_KEY}" \
-  --header 'Content-Type: application/json' \
-  --data-raw '{
-    "model": "minimax/speech-02-hd",
-    "config": {
-        "text": "Hello world! This is a test of the text-to-speech system.",
-        "voice_setting": {
-          "speed": 1,
-          "vol": 1,
-          "voice_id": "Wise_Woman",
-          "pitch": 0,
-          "english_normalization": false
-        },
-        "output_format": "hex"
-    }
-}'
+### Speech 2.8 synchronous TTS
+
+Default model: `speech-2.8-hd`.
+
+```json
+{
+  "model": "speech-2.8-hd",
+  "text": "Hello from MiniMax.",
+  "stream": false,
+  "language_boost": "auto",
+  "voice_setting": {
+    "voice_id": "male-qn-qingse",
+    "speed": 1,
+    "vol": 1,
+    "pitch": 0
+  },
+  "audio_setting": {
+    "sample_rate": 32000,
+    "bitrate": 128000,
+    "format": "mp3",
+    "channel": 1
+  },
+  "subtitle_enable": false
+}
 ```
 
-Workflow facts used by this skill:
+For a successful non-streaming response:
 
-- Call NetMind `POST /v1/generation` for text-to-speech.
-- Put narration text in `config.text`.
-- Put speaker settings in `config.voice_setting` (`voice_id`, `speed`, `vol`, `pitch`, `english_normalization`).
-- Prefer `output_format: "hex"`. Decode the returned hex audio payload to a binary audio file (usually MP3/WAV depending on provider payload).
-- Reuse a stable `voice_id` per speaker when reuse is intended (preset system voice or an authorized custom/cloned voice id the user already has).
-- Source voice samples (for clone or voice design workflows outside pure TTS) should still be clean: single speaker, little music/reverb, stable volume.
-- Do not store API keys, Authorization headers, or temporary download URLs in state files.
+- Require HTTP success.
+- Require `base_resp.status_code == 0`.
+- Require `data.status == 2` before accepting the audio as complete.
+- Decode the hexadecimal string in `data.audio` to the requested binary format.
+- Record `trace_id`, model, voice ID, output path, and audio metadata in `work/job-state.json`.
+- Never record the API key, Authorization header, or signed download URL.
 
-Recommended production behavior:
+The official response also includes `extra_info` such as audio length, sample rate, size, bitrate, format, channel count, and billed character usage. These are safe to retain when useful.
 
-- Generate a short test clip before long narration.
-- Prefer natural speaking speed for HeyGen mouth tracking (often `speed` around `0.95`–`1.05` if Chinese lip sync looks strained).
-- Save full narration as `work/voiceover-full.mp3`.
-- Save the first 15 seconds as `work/preview-15s.mp3` for the HeyGen preview gate.
-- Never print full keys or full Authorization headers.
+### Official voice cloning
+
+1. Upload the authorized source audio to `POST /v1/files/upload` using multipart field `purpose=voice_clone`.
+2. Record the returned `file.file_id`.
+3. Choose a unique custom `voice_id` that follows the official naming rules.
+4. Call `POST /v1/voice_clone` with `file_id` and `voice_id`.
+5. Optionally provide `text` and `model: speech-2.8-hd` to create a billed preview.
+6. Use the cloned `voice_id` in a formal TTS request. The official documentation warns that a cloned voice may be removed if it is not used for formal synthesis within seven days.
+
+Clone source requirements documented by MiniMax:
+
+- MP3, M4A, or WAV.
+- 10 seconds to 5 minutes.
+- At most 20 MB.
+- Prefer a clean single speaker with little music or reverberation.
+
+Optional `clone_prompt` uses a separately uploaded `prompt_audio` file and matching `prompt_text`; the prompt audio must be under 8 seconds and at most 20 MB.
+
+### Production behavior
+
+- Prefer natural speaking speed for HeyGen mouth tracking, generally near `1.0`.
+- Generate the full narration once, then trim its first 15 seconds for the preview gate.
+- Save full narration as `work/voiceover-full.mp3` and the preview as `work/preview-15s.mp3`.
+- Reuse a saved custom `voice_id` only when the authorized source hash and MiniMax account match.
+- Treat error codes, empty audio, incomplete status, and invalid hex as failed synthesis.
 
 ## HeyGen Image-to-Video and Assets
 
-Official docs:
+Official documentation:
 
 - https://developers.heygen.com/image-to-video
 - https://developers.heygen.com/assets
@@ -70,22 +101,15 @@ Official docs:
 
 Workflow facts used by this skill:
 
-- Assets can be uploaded through the HeyGen Assets API.
-- Image-to-Video can be driven by an uploaded image asset and a custom uploaded audio asset.
-- Use `audio_asset_id` when the narration is generated outside HeyGen (this skill uses NetMind audio).
-- Do not use HeyGen `script + voice_id` when the intended voice is NetMind narration, unless the user explicitly changes strategy.
-- Normal asset uploads have a size limit; large files may need a direct-upload or provider-specific large-file flow.
-- Video jobs should be polled by `video_id`; a timeout is not the same as a failed job.
+- Upload the portrait and MiniMax narration through the HeyGen Assets API.
+- Use `audio_asset_id` when driving the avatar with MiniMax audio.
+- Do not use HeyGen `script + voice_id` unless the user explicitly changes strategy.
+- Poll video jobs by `video_id`; a timeout is not a failed job.
+- Generate and decode-check a 15-second preview before the full video unless the user explicitly waives the gate.
+- Download completed videos promptly enough to avoid expired temporary URLs.
 
-Recommended production behavior:
+## Pricing and availability
 
-- Generate a 15-second preview first, usually at lower resolution.
-- Generate full 1080p only after explicit preview approval.
-- Download finished videos immediately enough to avoid expired links.
-- Decode-check the full MP4 after download; do not rely only on file size or the first few seconds.
-
-## Pricing And Availability
-
-- Do not hard-code historical prices in automation.
-- Before large batches, ask the user to confirm current NetMind and HeyGen pricing, account limits, and quota.
-- Treat network calls to NetMind or HeyGen as paid or potentially billable external actions unless the user says otherwise.
+- Do not hard-code prices in automation.
+- Before large batches, ask the user to confirm current MiniMax and HeyGen pricing, account limits, and quota.
+- Treat MiniMax and HeyGen generation as paid or potentially billable external actions unless the user says otherwise.

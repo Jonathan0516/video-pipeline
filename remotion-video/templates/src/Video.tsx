@@ -7,7 +7,7 @@ import type { Manifest } from "./types";
 export const secToFrames = (sec: number, fps: number) => Math.max(1, Math.round(sec * fps));
 
 // The full video: scenes on the main layer (Series), a persistent HeyGen PiP
-// overlay, one NetMind narration track, and optional captions.
+// overlay, one MiniMax narration track, and optional captions.
 export const Video: React.FC<{ manifest: Manifest }> = ({ manifest }) => {
   const { fps } = useVideoConfig();
   const { scenes, pip, designTokens } = manifest;
@@ -30,7 +30,7 @@ export const Video: React.FC<{ manifest: Manifest }> = ({ manifest }) => {
       {/* Persistent digital-human PiP overlay (visual only) */}
       {render.heygenClip ? <PiP pip={pip} clip={render.heygenClip} /> : null}
 
-      {/* Single source of truth for audio: the NetMind narration */}
+      {/* Single source of truth for audio: the MiniMax narration */}
       {render.narrationAudio ? <Audio src={staticFile(render.narrationAudio)} /> : null}
     </AbsoluteFill>
   );

@@ -2,10 +2,10 @@
 
 Compose and render a narrated product video with **Remotion** from a
 `video-source.json` Manifest: project scenes on the main layer, a **HeyGen
-digital-human PiP** bottom-left (muted), and a **NetMind narration** track.
+digital-human PiP** bottom-left (muted), and a **MiniMax narration** track.
 
 吃 `project-to-video-source` 的 Manifest → Remotion 编排渲染：主画面 = 项目场景，
-左下角画中画 = HeyGen 数字人，音轨 = NetMind 配音。
+左下角画中画 = HeyGen 数字人，音轨 = MiniMax 官方配音。
 
 ## Install / 安装
 
@@ -24,8 +24,8 @@ Invoke explicitly / 显式调用：
 
 - **Node 18+**, and a Remotion base project (`npm create video@latest -- --blank`).
 - **ffmpeg** on PATH.
-- Reuses **`avatar-video-skill`** for NetMind TTS + HeyGen (paid; needs
-  `NETMIND_API_KEY` + `HEYGEN_API_KEY`).
+- Reuses **`avatar-video-skill`** for MiniMax TTS + HeyGen (paid; needs
+  `MINIMAX_API_KEY` + `HEYGEN_API_KEY`).
 
 ## Flow / 流程
 
@@ -47,4 +47,4 @@ Remotion project's `src/` by the scaffold.
 ## Safety / 安全
 
 Keeps the avatar-skill **preview gate**: render 15s → user approval → full render.
-NetMind/HeyGen are paid external actions — get approval before the first run.
+MiniMax/HeyGen are paid external actions — get approval before the first run.

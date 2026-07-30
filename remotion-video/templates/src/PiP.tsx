@@ -2,7 +2,7 @@ import { OffthreadVideo, staticFile } from "remotion";
 import type { Pip } from "./types";
 
 // HeyGen digital-human presenter as a picture-in-picture overlay.
-// Muted on purpose: the audio comes from the single NetMind narration track;
+// Muted on purpose: the audio comes from the single MiniMax narration track;
 // HeyGen provides only the lip-synced visual.
 export const PiP: React.FC<{ pip: Pip; clip: string }> = ({ pip, clip }) => {
   const isBottom = pip.position.startsWith("bottom");

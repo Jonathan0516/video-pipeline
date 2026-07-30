@@ -38,7 +38,7 @@ export interface Manifest {
     width?: number;
     height?: number;
     heygenClip?: string; // public/-relative HeyGen presenter clip (muted, visual only)
-    narrationAudio?: string; // public/-relative full NetMind narration track
+    narrationAudio?: string; // public/-relative full MiniMax narration track
     captions?: boolean;
   };
 }

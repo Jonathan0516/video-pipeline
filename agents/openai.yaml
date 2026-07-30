@@ -1,6 +1,6 @@
 interface:
   display_name: "Avatar Video Skill"
-  short_description: "NetMind + HeyGen 数字人制作流程与质检"
+  short_description: "MiniMax 官方语音 + HeyGen 数字人制作与质检"
   default_prompt: "Use $avatar-video-skill to create a 15-second preview first, then wait for approval before generating the full avatar video."
 
 policy:

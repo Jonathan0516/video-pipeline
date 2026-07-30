@@ -2,7 +2,7 @@
 
 Read **any frontend web project** and emit a `video-source.json` Manifest +
 `assets/` for a narrated product video. Pairs with **`remotion-video`** (renders)
-and **`avatar-video-skill`** (NetMind TTS + HeyGen digital human).
+and **`avatar-video-skill`** (MiniMax official TTS + HeyGen digital human).
 
 读任意前端项目 → 生成视频素材清单（Manifest + 录像/组件），交给 `remotion-video` 渲染。
 

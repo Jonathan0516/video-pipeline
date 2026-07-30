@@ -1,6 +1,6 @@
 # avatar-video-skill
 
-Public-safe **NetMind (MiniMax model) TTS + HeyGen** workflow for producing
+Public-safe **MiniMax official Speech API + HeyGen** workflow for producing
 authorized 数字人 / 口播 (digital-human / talking-head) videos from a script and
 portrait, with a mandatory 15-second preview gate before full generation.
 
@@ -52,13 +52,13 @@ accidentally. 需显式调用，避免意外触发付费生产流程。
 Provide your own accounts, billing, and API keys / 自行提供账户、账单与 API 密钥：
 
 ```bash
-export NETMIND_API_KEY="..."   # NetMind (MiniMax speech model)
+export MINIMAX_API_KEY="..."   # MiniMax official Speech API
 export HEYGEN_API_KEY="..."    # HeyGen Image-to-Video / Photo Avatar
 ```
 
-> NetMind now covers what earlier setups called `MINIMAX_API_KEY`. Use
-> `NETMIND_API_KEY` — the skill reads only this variable for speech.
-> NetMind 已兼容旧的 `MINIMAX_API_KEY`；语音只读 `NETMIND_API_KEY` 这一个变量。
+The default official API base is `https://api.minimaxi.com`. If your MiniMax
+account belongs to another official region, set `MINIMAX_API_BASE_URL` to that
+region's official base URL. Never point it at an untrusted proxy.
 
 Do not commit `.env` files or real keys. 不要提交 `.env` 文件或真实密钥。
 
@@ -105,8 +105,8 @@ scripts/preflight_assets.py \
 ## Safety / 安全
 
 Use only for authorized voice, portrait, script, and publishing workflows.
-Installing the skill does not grant access to NetMind, HeyGen, OpenAI, paid
+Installing the skill does not grant access to MiniMax, HeyGen, OpenAI, paid
 credits, network access, legal clearance, or the author's files.
 
-仅用于已授权的语音、肖像、脚本与发布流程。安装本技能不授予对 NetMind、HeyGen、
+仅用于已授权的语音、肖像、脚本与发布流程。安装本技能不授予对 MiniMax、HeyGen、
 OpenAI 的访问权限，也不提供付费额度、网络访问、法律许可或作者的文件。

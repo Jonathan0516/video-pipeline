@@ -14,11 +14,13 @@ def build_state(project: str) -> Dict[str, Any]:
     return {
         "project": project,
         "created_at": date.today().isoformat(),
-        "netmind": {
-            "provider": "netmind",
-            "endpoint": "https://api.netmind.ai/v1/generation",
-            "tts_model": "minimax/speech-02-hd",
+        "minimax": {
+            "provider": "minimax-official",
+            "endpoint": "https://api.minimaxi.com/v1/t2a_v2",
+            "tts_model": "speech-2.8-hd",
             "voice_id": None,
+            "clone_file_id": None,
+            "tts_trace_id": None,
             "full_audio": "work/voiceover-full.mp3",
             "preview_audio": "work/preview-15s.mp3",
         },

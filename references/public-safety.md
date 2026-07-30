@@ -47,4 +47,4 @@ Before publishing this skill through a public repository, marketplace, or team c
 
 ## User Expectation
 
-Installing this skill does not grant access to HeyGen, NetMind, OpenAI, network access, paid credits, or the author's files. Each user must configure their own accounts, API keys, permissions, and billing.
+Installing this skill does not grant access to MiniMax, HeyGen, OpenAI, network access, paid credits, or the author's files. Each user must configure their own accounts, API keys, permissions, and billing.

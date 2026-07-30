@@ -1,27 +1,27 @@
 ---
 name: avatar-video-skill
-description: Public-safe NetMind speech (MiniMax model via NetMind) and HeyGen API workflow for creating avatar talking-head videos. Use when asked to make, automate, QA, or batch-produce authorized 数字人/口播 (digital human / talking-head) videos from a script and portrait — covers NetMind TTS narration, HeyGen Image-to-Video, HeyGen Photo Avatar, voice sample cloning, a 15-second preview, full-video generation, and job-state tracking.
+description: Public-safe MiniMax official Speech API and HeyGen API workflow for creating avatar talking-head videos. Use when asked to make, automate, QA, or batch-produce authorized 数字人/口播 (digital human / talking-head) videos from a script and portrait — covers MiniMax Speech 2.8 narration and voice cloning, HeyGen Image-to-Video and Photo Avatar, a 15-second preview, full-video generation, and job-state tracking.
 ---
 
 # Avatar Video Skill
 
 ## Core Rule
 
-Use **NetMind** for narration TTS and **HeyGen** for image-driven video. If a NetMind audio file is available, drive HeyGen with the uploaded audio asset. Do not switch to HeyGen `script + voice_id` unless the user explicitly asks to use HeyGen's own voice.
+Use the **official MiniMax Speech API** for narration and **HeyGen** for image-driven video. Drive HeyGen with the MiniMax audio asset. Do not use a NetMind proxy or switch to HeyGen `script + voice_id` unless the user explicitly requests that provider.
 
 Always preserve the production gate:
 
 ```text
-asset check -> NetMind narration -> 15-second HeyGen preview -> user approval -> full HeyGen video -> download QA -> archive state
+asset check -> MiniMax narration -> 15-second HeyGen preview -> user approval -> full HeyGen video -> download QA -> archive state
 ```
 
-This skill is a workflow guide. It does not grant HeyGen, NetMind, OpenAI, network, billing, or workspace permissions.
+This skill is a workflow guide. It does not grant MiniMax, HeyGen, OpenAI, network, billing, or workspace permissions.
 
 ## Operating Boundaries
 
-- Read secrets only from `NETMIND_API_KEY` and `HEYGEN_API_KEY`.
+- Read secrets only from `MINIMAX_API_KEY` and `HEYGEN_API_KEY`. Optionally read `MINIMAX_API_BASE_URL` for an official regional MiniMax endpoint; default to `https://api.minimaxi.com`.
 - Never print full API keys, Authorization headers, signed temporary URLs, or full request headers.
-- Treat NetMind TTS calls and HeyGen video creation as paid external actions. Request or rely on explicit user approval before the first paid/network action in a run.
+- Treat MiniMax speech/voice-cloning calls and HeyGen video creation as paid external actions. Request or rely on explicit user approval before the first paid/network action in a run.
 - Keep generated assets under `inputs/`, `work/`, and `outputs/` unless the user names another directory.
 - Write or update `work/job-state.json` before and after every external job stage.
 - If a previous state file exists, reuse existing `voice_id`, `asset_id`, and `video_id` when the corresponding source file has not changed.
@@ -37,7 +37,7 @@ Collect these inputs:
 
 - Script: usually `inputs/script.md`.
 - Portrait: usually `inputs/portrait.jpg` or `inputs/portrait.png`.
-- Optional voice sample / preferred `voice_id`: usually `inputs/voice-source.mp3` when cloning or matching is required, or a known NetMind `voice_id` such as a system voice.
+- Optional voice sample / preferred `voice_id`: usually `inputs/voice-source.mp3` when cloning or matching is required, or a known MiniMax system/custom `voice_id`.
 - Optional project name, target platform, aspect ratio, and output naming.
 
 If files live outside the workspace, ask for permission or tell the user what exact file access is needed.
@@ -54,41 +54,47 @@ Check before calling any API:
 - HeyGen normal asset uploads should stay at 32 MB or less.
 - The portrait should show a clear front-facing face, visible mouth, and head/shoulders.
 - The script should be reviewed for long sentences, brand names, numbers, and acronyms that may need pronunciation testing.
-- Confirm `NETMIND_API_KEY` and `HEYGEN_API_KEY` are present in the environment or `.env` without printing their values.
+- Confirm `MINIMAX_API_KEY` and `HEYGEN_API_KEY` are present in the environment or `.env` without printing their values.
 
 If an input fails validation, stop and propose the smallest fix.
 
-For exact public API facts, read `references/api-facts.md`. If a user asks for current parameters, pricing, or production code, verify against official NetMind and HeyGen documentation before taking paid action.
+For exact public API facts, read `references/api-facts.md`. If a user asks for current parameters, pricing, or production code, verify against official MiniMax and HeyGen documentation before taking paid action.
 
-### 3. Generate NetMind Narration
+### 3. Generate MiniMax Narration
 
-- Resolve `voice_id` (system voice such as `Wise_Woman`, or a user-provided authorized custom voice id). Reuse the same `voice_id` across preview and full runs when the speaker does not change.
-- Call NetMind generation:
+- Resolve `voice_id` from MiniMax system voices or an authorized custom/cloned voice. Reuse it across preview and full runs when the speaker does not change.
+- If cloning is required, upload the source with `purpose=voice_clone` to `POST /v1/files/upload`, then call `POST /v1/voice_clone`. Record `file_id` and `voice_id`; do not clone again when the source hash and saved IDs match.
+- Call MiniMax synchronous TTS:
 
 ```text
-POST https://api.netmind.ai/v1/generation
-Authorization: Bearer ${NETMIND_API_KEY}
+POST https://api.minimaxi.com/v1/t2a_v2
+Authorization: Bearer ${MINIMAX_API_KEY}
 Content-Type: application/json
 
 {
-  "model": "minimax/speech-02-hd",
-  "config": {
-    "text": "<script text>",
-    "voice_setting": {
-      "speed": 1,
-      "vol": 1,
-      "voice_id": "<voice_id>",
-      "pitch": 0,
-      "english_normalization": false
-    },
-    "output_format": "hex"
+  "model": "speech-2.8-hd",
+  "text": "<script text>",
+  "stream": false,
+  "language_boost": "auto",
+  "voice_setting": {
+    "voice_id": "<voice_id>",
+    "speed": 1,
+    "vol": 1,
+    "pitch": 0
+  },
+  "audio_setting": {
+    "sample_rate": 32000,
+    "bitrate": 128000,
+    "format": "mp3",
+    "channel": 1
   }
 }
 ```
 
-- Decode the hex audio payload to binary and save the full narration as `work/voiceover-full.mp3`.
+- Require HTTP success and `base_resp.status_code == 0`; for non-streaming synthesis, require `data.status == 2`.
+- Decode `data.audio` from hex and save the full narration as `work/voiceover-full.mp3`. Record the returned `trace_id`.
 - Save the first 15 seconds as `work/preview-15s.mp3` (trim with ffmpeg when available).
-- Record model, `voice_id`, and audio paths under the `netmind` section of `work/job-state.json`.
+- Record provider, endpoint, model, `voice_id`, clone `file_id` when applicable, `trace_id`, and audio paths under the `minimax` section of `work/job-state.json`.
 
 If no state file exists, use `scripts/init_job_state.py` or the template in `references/checklists.md` to create `work/job-state.json`.
 
@@ -143,14 +149,14 @@ For multiple scripts:
 - If polling times out, do not assume generation failed. Resume polling by `video_id`.
 - If download fails or the MP4 is corrupt, retry download before regenerating the video.
 - If a signed URL expires, refetch job status or asset metadata instead of creating a new paid job.
-- If NetMind returns hex audio that cannot be decoded, do not upload broken audio to HeyGen; fix decoding or re-request TTS first.
+- If MiniMax returns a nonzero `base_resp.status_code`, incomplete `data.status`, or invalid hex audio, do not upload broken audio to HeyGen. Record the `trace_id` and provider error without logging secrets, then fix or retry the failed stage.
 
 ## Public Distribution Policy
 
 - Treat this skill as shareable workflow instructions, not as a hosted service.
 - Do not bundle `.env` files, API keys, private portraits, voice samples, generated videos, job-state files from real clients, or signed download URLs.
 - If publishing the skill publicly, include only `SKILL.md`, `agents/openai.yaml`, `references/`, and `scripts/`.
-- Make the user bring their own NetMind and HeyGen accounts, keys, billing, and rights to the source materials.
+- Make the user bring their own MiniMax and HeyGen accounts, keys, billing, and rights to the source materials.
 - For public use, prefer explicit invocation with `$avatar-video-skill` so paid workflows do not trigger accidentally.
 - If publishing through a repository, marketplace, or team distribution channel, choose a package-level license outside the skill instructions.
 
@@ -159,7 +165,7 @@ For multiple scripts:
 Read these only when needed:
 
 - `references/checklists.md` for the state template, reusable prompts, and QA checklist.
-- `references/api-facts.md` for the currently documented NetMind and HeyGen facts this workflow relies on.
+- `references/api-facts.md` for the currently documented MiniMax and HeyGen facts this workflow relies on.
 - `references/public-safety.md` for consent, disclosure, sharing, and public-release guidance.
 
-If exact API parameters, pricing, availability, or provider behavior matters, verify against official NetMind and HeyGen documentation before coding or running paid requests.
+If exact API parameters, pricing, availability, or provider behavior matters, verify against official MiniMax and HeyGen documentation before coding or running paid requests.

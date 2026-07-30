@@ -21,7 +21,7 @@ suits UIs whose primary action sits top/right).
 The main video should cut to the next scene exactly when the presenter finishes
 narrating the current one. Mechanism:
 
-1. `avatar-video-skill` generates NetMind audio **per scene** (one segment per
+1. `avatar-video-skill` generates MiniMax audio **per scene** (one segment per
    scene's `narration`), and one concatenated `narration.mp3`.
 2. For each scene, measure its segment length:
    ```bash
@@ -31,7 +31,7 @@ narrating the current one. Mechanism:
 4. `Root.tsx` recomputes the total; the single `<Audio narration.mp3>` now lines
    up with the scene boundaries because both derive from the same segment lengths.
 
-Because the same NetMind audio drove the HeyGen lip-sync, the presenter's mouth,
+Because the same MiniMax audio drove the HeyGen lip-sync, the presenter's mouth,
 the narration track, and the scene cuts all agree.
 
 ### Tips

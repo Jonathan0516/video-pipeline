@@ -7,14 +7,14 @@ Status: Approved (interactive section-by-section approval)
 
 A reusable skill set that turns **any frontend project** into a narrated video
 with a HeyGen digital-human presenter overlaid in the bottom-left (PiP) and
-NetMind narration, composed/rendered by **Remotion**. NarraNexus is the first
+MiniMax narration, composed/rendered by **Remotion**. NarraNexus is the first
 target; the skills must generalize to other frontend projects.
 
 ## Decisions
 
 - **Main video** = the frontend project's UI.
 - **Digital human** = HeyGen clip, PiP bottom-left, muted (visual only).
-- **Audio** = single NetMind narration track (also drove HeyGen lip-sync → aligns).
+- **Audio** = single MiniMax narration track (also drove HeyGen lip-sync → aligns).
 - **Mode is chosen by the user at runtime**, default A:
   - **A (capture)** — Playwright records the real running app. Generic, zero
     project changes. Primary path.
@@ -30,7 +30,7 @@ target; the skills must generalize to other frontend projects.
 ## Architecture (three skills)
 
 ```
-avatar-video-skill (existing)   NetMind TTS + HeyGen digital human
+avatar-video-skill (existing)   MiniMax TTS + HeyGen digital human
         ▲ reused by remotion-video
 project-to-video-source         any frontend project → Manifest + assets/
         │  Manifest contract (stable interface)
@@ -90,9 +90,9 @@ Scene scripting is **semi-automatic**: auto-scan routes → draft `scenes.config
 2. Read Manifest → `<Series>` timeline; per scene `MainLayer` =
    `<OffthreadVideo>` (A) or `AppShell`-wrapped component (B).
 3. **PiP** — HeyGen clip bottom-left, configurable position/size/radius, muted.
-4. **Audio alignment** — call `avatar-video-skill`: NetMind per-scene narration +
+4. **Audio alignment** — call `avatar-video-skill`: MiniMax per-scene narration +
    HeyGen lip-synced clip. **Scene duration = narration audio length.** One
-   `<Audio>` NetMind track = single source of truth.
+   `<Audio>` MiniMax track = single source of truth.
 5. **Brand & captions** — apply designTokens to intro / lower-thirds / captions.
 6. **Render** — 15s preview → user approval → full `remotion render` →
    `outputs/final-1080p.mp4`. Preserves avatar-skill's preview gate.
